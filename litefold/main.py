@@ -1,6 +1,5 @@
 from fastapi import FastAPI, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
-import uuid
 from datetime import datetime
 import torch
 import logging
