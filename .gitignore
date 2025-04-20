@@ -1,0 +1,133 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+.venv
+env.bak/
+venv.bak/
+
+# Data files
+*.csv
+*.dat
+*.db
+*.sqlite
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.json
+*.jsonl
+*.parquet
+*.feather
+*.arrow
+*.ftr
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Model files
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.pb
+*.onnx
+*.mlmodel
+*.joblib
+*.model
+*.weights
+*.bin
+*.tar.gz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+log.txt
+*.out
+
+# Environment variables
+.env
+.env.*
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# DVC
+.dvc/
+/dvc.lock
+/dvc.yaml
+.dvcignore
+
+# Weights & Biases
+wandb/
+
+# TensorBoard
+runs/
+
+# Ray
+ray_results/
+*.pdb
+tmp.py
+*.pyc
+esmfold/internal/__pycache__/*
+tmp.py
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+
+# All __pycache__ folders
+__pycache__/
+*/__pycache__/*
+
