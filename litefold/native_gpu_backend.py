@@ -15,7 +15,6 @@ from Bio.PDB import PDBParser
 import numpy as np
 import biotite.structure.io as bsio
 from typing import List
-from pydantic import BaseModel
 
 # Add cors headers
 from fastapi.middleware.cors import CORSMiddleware

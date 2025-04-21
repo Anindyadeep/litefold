@@ -130,4 +130,6 @@ tmp.py
 # All __pycache__ folders
 __pycache__/
 */__pycache__/*
-
+litefold/results/*
+ins.md
+tmp.py

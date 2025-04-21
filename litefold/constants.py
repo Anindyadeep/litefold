@@ -1,2 +1,2 @@
 SQLALCHEMY_DATABASE_URL = "sqlite:///jobs.db"
-CUDA_DEVICE = "cuda:5"
+CUDA_DEVICE = "cuda:0"
