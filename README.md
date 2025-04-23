@@ -1,5 +1,7 @@
 # LiteFold: Protein Structure Prediction Made Accessible
 
+📝 [Release blog](https://copper-jasper-ae1.notion.site/LiteFold-Folding-experiments-just-got-more-accessible-1d976f0a4c3980f5bc81c82f543330b9)
+
 LiteFold makes protein structure prediction accessible without the usual GPU setup headaches. It's a simple server that runs state-of-the-art folding models for researchers and students.
 
 ![LiteFold Visualization Interface](assets/image.png)
@@ -30,10 +32,11 @@ The fastest way to get LiteFold running is with Docker:
 ```bash
 # Clone the repository
 git clone https://github.com/Anindyadeep/litefold
-cd litefold
+cd litefold/litefold
 
 # Start the container (will download model weights on first run)
-docker compose up -d
+docker build -t litefold -f selfhosted.Dockerfile .
+docker run -d --gpus all -p 8000:8000 -v litefold_results:/data/results -v litefold_db:/data/db litefold
 ```
 
 The server will be available at http://localhost:8000
@@ -61,6 +64,29 @@ The server can be configured using environment variables:
 | ------------------------- | -------------------------- | ---------------------- |
 | `CUDA_DEVICE`             | GPU device to use          | `cuda:0`               |
 | `SQLALCHEMY_DATABASE_URL` | Database connection string | `sqlite:///db/jobs.db` |
+
+## Frontend Integration
+
+While this repository contains the backend server, you can connect it to the LiteFold frontend for a complete experience. If you're using the managed LiteFold service, you can point it to your self-hosted backend by going to Settings → Server Configuration.
+
+### Making Your Local Server Public
+
+To make your localhost server accessible from the internet, you can use ngrok:
+
+1. Install ngrok and get your authtoken. You can go to [ngrok website](https://ngrok.com/) to get the authtoken and they have a nice instructions on how to download it in mac / windows or linux.
+
+2. Configure ngrok:
+
+   ```bash
+   ngrok config add-authtoken YOUR_AUTH_TOKEN
+   ```
+
+3. Create a tunnel to your local server:
+   ```bash
+   ngrok http 8000
+   ```
+
+This will give you a public URL (like `https://abc123.ngrok.io`) that you can use to access your local server from anywhere.
 
 ## Usage
 
@@ -105,10 +131,6 @@ status_url = f"http://localhost:8000/status/{job_id}"
 response = requests.get(status_url)
 print(response.json())
 ```
-
-## Frontend Integration
-
-While this repository contains the backend server, you can connect it to the LiteFold frontend for a complete experience. If you're using the managed LiteFold service, you can point it to your self-hosted backend by going to Settings → Server Configuration.
 
 ## Why LiteFold?
 
