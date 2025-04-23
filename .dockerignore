@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Version control
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Local development
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Result files
+results/
+fold_models/ 
