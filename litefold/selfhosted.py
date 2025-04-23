@@ -293,4 +293,4 @@ async def list_successful_jobs(user_id: str, db: Session = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting uvicorn server")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=7114)

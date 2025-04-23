@@ -27,6 +27,6 @@ RUN ln -sf /data/results results && \
 
 
 ENV SQLALCHEMY_DATABASE_URL=sqlite:////data/db/jobs.db
-EXPOSE 8000
+EXPOSE 7114
 VOLUME ["/data/results", "/data/db"]
 CMD ["python3", "selfhosted.py"]

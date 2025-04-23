@@ -31,3 +31,6 @@ class Job(Base):
     result_path = Column(String, nullable=True)
     error_message = Column(String, nullable=True)
     user_id = Column(String, index=True) 
+
+# Create tables if not exists
+Base.metadata.create_all(bind=engine) 
