@@ -4,9 +4,7 @@ import requests
 from pathlib import Path
 import torch
 from tqdm.auto import tqdm
-import numpy as np
-from Bio.PDB import PDBParser
-import biotite.structure.io as bsio
+from typing import Dict, Any
 
 from fold_models import ESMFold
 logger = logging.getLogger(__name__)
@@ -56,9 +54,10 @@ results_volume = modal.Volume.from_name("results", create_if_missing=True)
     image=model_image,
     gpu="any",
     volumes={MODEL_DIR: model_volume, RESULTS_DIR: results_volume},
-    timeout= 10 * MINUTES
+    timeout= 10 * MINUTES,
+    container_idle_timeout=600,
 )
-class LiteFoldServer:
+class ESMFoldServer:
     @modal.enter()
     def load_model(self):
         load_esmfold_model()
@@ -84,54 +83,71 @@ class LiteFoldServer:
 
     
     @modal.method()
-    def predict(self, user_id: str, job_id: str, sequence: str) -> dict:
+    def predict(self, user_id: str, job_id: str, sequence: str) -> Dict[str, Any]:
         try:
             with torch.no_grad():
                 output = self.model.infer_pdb(sequence)
-                
-                # Save output to temp PDB file
-                output_path = Path(RESULTS_DIR) / f"{job_id}.pdb"
-                with open(output_path, "w") as f:
-                    f.write(output)
-            
-            def get_ca_coordinates(structure):
-                coords = []
-                for model in structure:
-                    for chain in model:
-                        for residue in chain:
-                            if 'CA' in residue:
-                                ca = residue['CA'].get_vector().get_array()
-                                coords.append(ca)
-                return np.array(coords)
-            
-            def calculate_distogram(coords):
-                dist_matrix = np.linalg.norm(
-                    coords[:, None, :] - coords[None, :, :], axis=-1
-                )
-                return dist_matrix.tolist()
-            
-            parser = PDBParser(QUIET=True)
-            structure = parser.get_structure("protein", output_path)
-            coords = get_ca_coordinates(structure)
-            distogram = calculate_distogram(coords)
-            struct = bsio.load_structure(output_path, extra_fields=["b_factor"])
-            plddt_score = float(struct.b_factor.mean())
+
             return {
-                "distogram": distogram,
-                "plddt": plddt_score,
-                "coords": coords,
                 "user_id": user_id,
                 "success": True,
-                "job_id": job_id
+                "job_id": job_id,
+                "pdb_content": output
             }
         except Exception as e:
             import traceback
             logger.error(f"Internal Server error: {e}\nTraceback: {''.join(traceback.format_tb(e.__traceback__))}")
             return {
-                "distogram": None,
-                "plddt": None,
-                "coords": None,
                 "user_id": user_id,
                 "success": False,
-                "job_id": job_id
+                "job_id": job_id,
+                "pdb_content": None
             }
+
+    @modal.asgi_app()
+    def api(self):
+        from fastapi import FastAPI, HTTPException
+        from fastapi.middleware.cors import CORSMiddleware
+        from pydantic import BaseModel
+
+        class PredictionRequest(BaseModel):
+            user_id: str
+            job_id: str
+            sequence: str
+
+        class PredictionResponse(BaseModel):
+            user_id: str
+            success: bool
+            job_id: str
+            pdb_content: str = None
+
+        api_app = FastAPI()
+        
+        api_app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+        @api_app.get("/status")
+        async def status():
+            return {"status": "online"}
+            
+        @api_app.post("/predict", response_model=PredictionResponse)
+        async def run_prediction(request: PredictionRequest):
+            try:
+                result = self.predict.remote(
+                    user_id=request.user_id,
+                    job_id=request.job_id,
+                    sequence=request.sequence
+                )
+                return result
+            except Exception as e:
+                logger.error(f"Error processing prediction: {e}")
+                import traceback
+                logger.error(f"Traceback: {''.join(traceback.format_tb(e.__traceback__))}")
+                raise HTTPException(status_code=500, detail=str(e))
+                
+        return api_app
