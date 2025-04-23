@@ -61,7 +61,6 @@ venv.bak/
 *.pdf
 *.jpg
 *.jpeg
-*.png
 *.gif
 
 # Model files
