@@ -1,95 +1,153 @@
-## API Documentation
-I'll add the successful jobs endpoint to the README.
+# LiteFold: Protein Structure Prediction Made Accessible
 
-# ESMFold-Lite API Documentation
+LiteFold makes protein structure prediction accessible without the usual GPU setup headaches. It's a simple server that runs state-of-the-art folding models for researchers and students.
 
-## Endpoints
+![LiteFold Visualization Interface](assets/image.png)
 
-### 1. Health Check
-```http
-GET /health
+## Overview
+
+The release of models like AlphaFold has transformed computational structural biology, enabling unprecedented accuracy in protein structure prediction. However, there remains a significant accessibility gap between these powerful tools and the broader scientific community.
+
+LiteFold bridges this gap by providing:
+
+1. A lightweight, GPU-powered inference server for protein structure prediction
+2. Support for state-of-the-art models starting with ESMFold
+3. Simple self-hosting capabilities for researchers who need local control
+
+## Self-Hosting Guide
+
+### Prerequisites
+
+- NVIDIA GPU with CUDA support
+- Docker and Docker Compose
+- At least 12GB of GPU memory (for ESMFold 3B model)
+- 20GB+ disk space for models and results
+
+### Quick Start with Docker
+
+The fastest way to get LiteFold running is with Docker:
+
+```bash
+# Clone the repository
+git clone https://github.com/Anindyadeep/litefold
+cd litefold
+
+# Start the container (will download model weights on first run)
+docker compose up -d
 ```
-Returns the current status of the system, including GPU and model information.
 
-### 2. Submit Prediction
-```http
-POST /predict
-```
-Submit a protein sequence for structure prediction.
+The server will be available at http://localhost:8000
 
-**Request Body:**
-```json
-{
-    "job_id": "string",
-    "job_name": "string",
-    "model": "string",
-    "sequence": "string"
+### Manual Setup
+
+If you prefer to run without Docker:
+
+1. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Start the server:
+   ```bash
+   python selfhosted.py
+   ```
+
+### Configuration Options
+
+The server can be configured using environment variables:
+
+| Variable                  | Description                | Default                |
+| ------------------------- | -------------------------- | ---------------------- |
+| `CUDA_DEVICE`             | GPU device to use          | `cuda:0`               |
+| `SQLALCHEMY_DATABASE_URL` | Database connection string | `sqlite:///db/jobs.db` |
+
+## Usage
+
+Once your server is running, you can:
+
+1. Submit protein structure prediction jobs via REST API
+2. Monitor job status and retrieve results
+3. Visualize predicted structures (if using the frontend)
+
+### API Endpoints
+
+- `/predict` - Submit a new prediction job
+- `/status/{job_id}` - Check job status
+- `/successful-jobs/{user_id}` - List successful jobs for a user
+- `/health` - Check server health
+
+### Example API Usage
+
+Submit a prediction job:
+
+```python
+import requests
+import json
+
+url = "http://localhost:8000/predict"
+payload = {
+    "job_id": "example-job-123",
+    "job_name": "Hemoglobin Alpha",
+    "model": "esmfold_3B_v1",
+    "sequence": "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH",
+    "user_id": "user-123"
 }
+response = requests.post(url, json=payload)
+print(response.json())
 ```
 
-**Response:**
-```json
-{
-    "job_id": "string",
-    "status": "string",
-    "message": "string"
-}
+Check job status:
+
+```python
+job_id = "example-job-123"
+status_url = f"http://localhost:8000/status/{job_id}"
+response = requests.get(status_url)
+print(response.json())
 ```
 
-### 3. Check Job Status
-```http
-GET /status/{job_id}
-```
-Get the status and results of a prediction job.
+## Frontend Integration
 
-**Response:**
-```json
-{
-    "job_id": "string",
-    "job_name": "string",
-    "status": "string",
-    "created_at": "datetime",
-    "completed_at": "datetime",
-    "error_message": "string",
-    "pdb_content": "string",         // Only present if job is successful
-    "distogram": "array",            // Only present if job is successful
-    "plddt_score": "float"          // Only present if job is successful
-}
-```
+While this repository contains the backend server, you can connect it to the LiteFold frontend for a complete experience. If you're using the managed LiteFold service, you can point it to your self-hosted backend by going to Settings → Server Configuration.
 
-### 4. List Successful Jobs
-```http
-GET /successful-jobs/{user_id}
-```
-Retrieve a list of all successfully completed jobs for a specific user.
+## Why LiteFold?
 
-**Parameters:**
-- `user_id`: The ID of the user whose successful jobs you want to retrieve
+Traditional protein structure prediction pipelines come with significant barriers:
 
-**Response:**
-```json
-[
-    {
-        "job_id": "string",
-        "job_name": "string",
-        "created_at": "datetime",
-        "completed_at": "datetime",
-        "result_path": "string",
-        "user_id": "string"
-    }
-]
-```
+- Complex dependencies and environment setup
+- High GPU requirements
+- Fragmented visualization and analysis tools
 
-## Status Values
-The job status can be one of the following:
-- `pending`: Job is queued
-- `processing`: Job is currently being processed
-- `successful`: Job completed successfully
-- `crashed`: Job failed with an error
+LiteFold simplifies this process with a streamlined, modular approach that separates inference from visualization, allowing researchers to focus on the science rather than infrastructure maintenance.
 
-## Notes
-- The API uses a background worker to process predictions asynchronously
-- All successful predictions include the PDB structure, distance matrix (distogram), and pLDDT confidence scores
-- The service requires GPU availability for predictions
-- All timestamps are in UTC
-- Job IDs must be unique - attempting to reuse a job ID will result in an error
+## Feature Roadmap
+
+- [x] ESMFold model support
+- [ ] OpenFold integration
+- [ ] RNA structure prediction
+- [ ] Protein-ligand docking
+- [ ] Protein-protein interaction modeling
+
+## Contributing
+
+This project is in active development, and contributions are welcome! Whether you're a structural biologist, ML researcher, or software engineer, there are many ways to get involved:
+
+1. File issues for bugs or feature requests
+2. Submit pull requests for improvements
+3. Share scientific or technical feedback
+
+## License
+
+This project is licensed under [MIT License](LICENSE).
+
+## Acknowledgments
+
+LiteFold builds upon the remarkable work of the open-source structural biology community, particularly:
+
+- Meta AI's ESM team for ESMFold
+- The AlQuraishi Lab for OpenFold
+- The broader computational structural biology community
+
+---
+
+For more information about the project vision and educational resources, visit [semanticsearch.in/litefold](https://www.semanticsearch.in/litefold).
