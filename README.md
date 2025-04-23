@@ -36,10 +36,11 @@ cd litefold/litefold
 
 # Start the container (will download model weights on first run)
 docker build -t litefold -f selfhosted.Dockerfile .
-docker run -d --gpus all -p 8000:8000 -v litefold_results:/data/results -v litefold_db:/data/db litefold
+docker run -d --gpus all -p 7114:7114 -v litefold_results:/data/results -v litefold_db:/data/db litefold
 ```
 
-The server will be available at http://localhost:8000
+The server will be available at http://localhost:7114
+This port 7114 is kept intentionally, so that it does not affect other processes running on same port (which is generally 8000)
 
 ### Manual Setup
 
@@ -83,7 +84,7 @@ To make your localhost server accessible from the internet, you can use ngrok:
 
 3. Create a tunnel to your local server:
    ```bash
-   ngrok http 8000
+   ngrok http 7114
    ```
 
 This will give you a public URL (like `https://abc123.ngrok.io`) that you can use to access your local server from anywhere.
@@ -111,7 +112,7 @@ Submit a prediction job:
 import requests
 import json
 
-url = "http://localhost:8000/predict"
+url = "http://localhost:7114/predict"
 payload = {
     "job_id": "example-job-123",
     "job_name": "Hemoglobin Alpha",
