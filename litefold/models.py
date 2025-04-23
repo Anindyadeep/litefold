@@ -8,19 +8,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-import os
 
-# Check if we're running in Modal
-IN_MODAL = os.environ.get('MODAL_ENVIRONMENT') == 'true'
-
-if IN_MODAL:
-    # Use Modal volume path in deployment
-    VOLUME_PATH = "/data"
-    DB_PATH = f"{VOLUME_PATH}/jobs.db"
-else:
-    # Use local path in development
-    DB_PATH = "jobs.db"  # This will create the DB in the current directory
-
+DB_PATH = "jobs.db"
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(
@@ -38,14 +27,9 @@ class Job(Base):
     job_name = Column(String)
     model = Column(String)
     sequence = Column(String)
-    status = Column(String)  # pending, successful, crashed
-    created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String) 
+    created_at = Column(DateTime, default=datetime.now)
     completed_at = Column(DateTime, nullable=True)
     result_path = Column(String, nullable=True)
     error_message = Column(String, nullable=True)
-    user_id = Column(String, index=True)  # Add index for faster user-based queries
-
-# Create tables only in development
-if not IN_MODAL:
-    Base.metadata.create_all(bind=engine)
-
+    user_id = Column(String, index=True) 
