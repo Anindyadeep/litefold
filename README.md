@@ -1,6 +1,6 @@
 # LiteFold: Protein Structure Prediction Made Accessible
 
-📝 [Release blog](https://copper-jasper-ae1.notion.site/LiteFold-Folding-experiments-just-got-more-accessible-1d976f0a4c3980f5bc81c82f543330b9)
+📝 [Release blog](https://copper-jasper-ae1.notion.site/LiteFold-Folding-experiments-just-got-more-accessible-1d976f0a4c3980f5bc81c82f543330b9) | 🌐 [LiteFold](https://litefold.vercel.app/)
 
 LiteFold makes protein structure prediction accessible without the usual GPU setup headaches. It's a simple server that runs state-of-the-art folding models for researchers and students.
 
