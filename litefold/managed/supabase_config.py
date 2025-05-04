@@ -106,6 +106,17 @@ def download_file(user_id: str, job_id: str) -> Optional[bytes]:
         logger.error(f"Error downloading file: {e}")
         return None
 
+def delete_file(user_id: str, job_id: str) -> bool:
+    try:
+        client = get_supabase_client()
+        file_path = f"{user_id}/{job_id}.pdb"
+        client.storage.from_(BUCKET_NAME).remove([file_path])
+        logger.info(f"Successfully deleted file: {file_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error deleting file: {e}")
+        return False
+
 if __name__ == "__main__":
     if init_storage():
         logger.info("Successfully initialized Supabase storage")

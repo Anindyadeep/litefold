@@ -3,17 +3,17 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 import torch
 import logging
-from models import Job, SessionLocal
-from schemas import PredictionRequest, PredictionResponse, JobStatus, SuccessfulJobResponse
+from litefold.selfhosted.models import Job, SessionLocal
+from litefold.selfhosted.schemas import PredictionRequest, PredictionResponse, JobStatus, SuccessfulJobResponse
 from pathlib import Path
 import queue 
 import threading
 from fold_models import ESMFold
-from constants import CUDA_DEVICE
+from selfhosted.constants import CUDA_DEVICE
 from contextlib import asynccontextmanager
 from Bio.PDB import PDBParser
 import biotite.structure.io as bsio
-from utils import get_ca_coordinates, calculate_distogram
+from selfhosted.utils import get_ca_coordinates, calculate_distogram
 from typing import List
 
 # Add cors headers

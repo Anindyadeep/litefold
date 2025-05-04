@@ -1,9 +1,8 @@
 fastapi==0.104.1
 uvicorn==0.24.0
 sqlalchemy==2.0.23
-torch>=2.0.0
-numpy>=1.24.0
-biopython>=1.81
+numpy>=1.23.5
+biopython==1.79
 biotite>=0.38.0
 requests>=2.31.0
 python-multipart>=0.0.6
@@ -11,4 +10,6 @@ pydantic>=2.4.2
 pathlib>=1.0.1
 typing>=3.7.4.3
 python-dotenv>=1.0.0
-fair-esm[esmfold]
+psycopg2-binary
+supabase==2.15
+ProDy==2.4.1

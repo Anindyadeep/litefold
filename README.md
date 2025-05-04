@@ -18,6 +18,10 @@ LiteFold bridges this gap by providing:
 
 ## Self-Hosting Guide
 
+> ⚠️ **UNDER CONSTRUCTION** ⚠️
+>
+> The self-hosted version is currently under development due to breaking changes introduced in the managed version. Please be patient as we work to release a stable self-hosted version soon. Thank you for your understanding.
+
 ### Prerequisites
 
 - NVIDIA GPU with CUDA support

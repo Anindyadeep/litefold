@@ -21,17 +21,20 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 # Install numpy first to ensure proper initialization
 RUN pip install --no-cache-dir numpy==1.24.3 Cython==3.0.6
 
+# Create results directory
+RUN mkdir -p results
+
 # Copy requirements first (for better caching)
 COPY requirements.txt .
 
 # Install Python dependencies with specific options to handle conflicts
 RUN pip install --no-cache-dir -r requirements.txt --use-pep517
 
-# Create results directory
-RUN mkdir -p results
-
 # Copy application code
-COPY litefold/ .
+COPY main.py .
+COPY schemas.py .
+COPY utils.py .
+COPY supabase_config.py .
 
 # Install uvicorn
 RUN pip install uvicorn

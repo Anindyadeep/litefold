@@ -1,109 +1,74 @@
-# Please note: This is the old version of the ESMFold model.
-# The new version is in the esm3.py file.
-# This file is just kept for the reference. 
-
 import modal
 import logging
-import requests
 from pathlib import Path
-import torch
-from tqdm.auto import tqdm
 from typing import Dict, Any
 
-from fold_models import ESMFold
 logger = logging.getLogger(__name__)
-
 MODEL_DIR = "/models"
 RESULTS_DIR = "/results"
 DEST_PATH = Path(MODEL_DIR) / "litefold_3B"
 MODEL_NAME = "esmfold_3B_v1"
 MINUTES = 60
 
-def download_esmfold_model(dest_path):
-    url = f"https://dl.fbaipublicfiles.com/fair-esm/models/{MODEL_NAME}.pt"
-    logger.info(f"Downloading {url} to {dest_path}")
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        total_size = int(r.headers.get('content-length', 0))
-        with open(dest_path, "wb") as f:
-            with tqdm(total=total_size, unit='iB', unit_scale=True, desc='Downloading model') as pbar:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-                    pbar.update(len(chunk))
-
-
 app = modal.App("litefold-serverless")
 model_image = (
     modal.Image.debian_slim(python_version="3.10")
+    .apt_install("clang")
     .pip_install(
         "torch",
         "biotite",
         "biopython",
         "fastapi[standard]",
         "sqlalchemy",
-        "omegaconf"
+        "omegaconf",
+        "esm"
     )
-    .pip_install("fair-esm[esmfold]")
 )
+
 model_volume = modal.Volume.from_name("model", create_if_missing=True)
 results_volume = modal.Volume.from_name("results", create_if_missing=True)
 
 
 @app.cls(
     image=model_image,
-    gpu="any",
+    gpu="A10G",
     volumes={MODEL_DIR: model_volume, RESULTS_DIR: results_volume},
     timeout= 10 * MINUTES,
     container_idle_timeout=600,
+    secrets=[modal.Secret.from_name("esm3-hf")]
 )
 class ESMFoldServer:
     @modal.enter()
     def load_model(self):
         logger.info("Starting model loading process ...")
-        
-        # Check if model exists in the volume
-        if not DEST_PATH.exists():
-            logger.info(f"Model file not found at {DEST_PATH}, downloading...")
-            download_esmfold_model(DEST_PATH)
-        else:
-            logger.info(f"Model file already exists at {DEST_PATH}, using cached version.")
-            
-        # Load the model
-        logger.info(f"Loading model from {DEST_PATH}")
-        model_data = torch.load(
-            str(DEST_PATH), map_location="cpu", weights_only=False
-        )
-        cfg = model_data["cfg"]["model"]
-        model_state = model_data["model"]
-        model = ESMFold(esmfold_config=cfg)
+        from esm.models.esm3 import ESM3
+        from esm.sdk.api import ESM3InferenceClient
 
-        expected_keys = set(model.state_dict().keys())
-        found_keys = set(model_state.keys())
-        missing_essential_keys = [
-            k for k in expected_keys - found_keys if not k.startswith("esm.")
-        ]
-        if missing_essential_keys:
-            raise RuntimeError(
-                f"Keys '{', '.join(missing_essential_keys)}' are missing."
-            )
-        model.load_state_dict(model_state, strict=False)
-        logger.info("Push the model weights to GPU")
-        self.model = model.cuda()
+        self.model: ESM3InferenceClient = ESM3.from_pretrained("esm3-open").to("cuda")
+        logger.info("Model loaded successfully")
 
     
     @modal.method()
     def predict(self, user_id: str, job_id: str, sequence: str) -> Dict[str, Any]:
         try:
-            with torch.no_grad():
-                output = self.model.infer_pdb(sequence)
+            from esm.sdk.api import ESMProtein, GenerationConfig
+            protein = ESMProtein(sequence=sequence)
+            protein = self.model.generate(
+                protein, GenerationConfig(
+                    track="structure", num_steps=10, temperature=0.1
+                )
+            )
+            protein.to_pdb("./generation.pdb")
+
+            # Read the pdb file
+            with open("./generation.pdb", "r") as f:
+                pdb_content = f.read()
 
             return {
                 "user_id": user_id,
                 "success": True,
                 "job_id": job_id,
-                "pdb_content": output
+                "pdb_content": pdb_content
             }
         except Exception as e:
             import traceback
