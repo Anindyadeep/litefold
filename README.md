@@ -1,6 +1,6 @@
 # LiteFold: Protein Structure Prediction Made Accessible
 
-📝 [Release blog](https://copper-jasper-ae1.notion.site/LiteFold-Folding-experiments-just-got-more-accessible-1d976f0a4c3980f5bc81c82f543330b9) | 🌐 [LiteFold](https://litefold.vercel.app/)
+📝 [Release blog](https://copper-jasper-ae1.notion.site/LiteFold-Folding-experiments-just-got-more-accessible-1d976f0a4c3980f5bc81c82f543330b9) | 🌐 [LiteFold](https://litefold.in)
 
 LiteFold makes protein structure prediction accessible without the usual GPU setup headaches. It's a simple server that runs state-of-the-art folding models for researchers and students.
 
@@ -171,10 +171,19 @@ This project is licensed under [MIT License](LICENSE).
 
 LiteFold builds upon the remarkable work of the open-source structural biology community, particularly:
 
-- Meta AI's ESM team for ESMFold
-- The AlQuraishi Lab for OpenFold
-- The broader computational structural biology community
+- [ColabFold](https://github.com/sokrypton/ColabFold)
+- [LocalColabFold](https://github.com/YoshitakaMo/localcolabfold)
+- [ESM3 (Weights are used for non-commercial purposes only on LiteFold)](https://github.com/evolutionaryscale/esm)
 
----
+### Citations
 
-For more information about the project vision and educational resources, visit [semanticsearch.in/litefold](https://www.semanticsearch.in/litefold).
+```
+@article {hayes2024simulating,
+	author = {Hayes, Thomas and Rao, Roshan and Akin, Halil and Sofroniew, Nicholas J. and Oktay, Deniz and Lin, Zeming and Verkuil, Robert and Tran, Vincent Q. and Deaton, Jonathan and Wiggert, Marius and Badkundri, Rohil and Shafkat, Irhum and Gong, Jun and Derry, Alexander and Molina, Raul S. and Thomas, Neil and Khan, Yousuf A. and Mishra, Chetan and Kim, Carolyn and Bartie, Liam J. and Nemeth, Matthew and Hsu, Patrick D. and Sercu, Tom and Candido, Salvatore and Rives, Alexander},
+	title = {Simulating 500 million years of evolution with a language model},
+	year = {2024},
+	doi = {10.1101/2024.07.01.600583},
+	URL = {https://doi.org/10.1101/2024.07.01.600583},
+	journal = {bioRxiv}
+}
+```
