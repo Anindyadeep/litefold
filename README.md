@@ -149,8 +149,9 @@ LiteFold simplifies this process with a streamlined, modular approach that separ
 
 ## Feature Roadmap
 
-- [x] ESMFold model support
-- [ ] OpenFold integration
+- [x] ESM3 model support
+- [x] AlphaFold2 model support
+- [ ] Chai1 / Boltz integration
 - [ ] RNA structure prediction
 - [ ] Protein-ligand docking
 - [ ] Protein-protein interaction modeling
